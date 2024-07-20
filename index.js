@@ -7,6 +7,7 @@ const app = express();
 const prisma = new PrismaClient();
 
 app.use(bodyParser.json());
+const allowedOrigin = 'https://accredian-frontend-seven.vercel.app';
 
 // Send Referral Email
 const sendReferralEmail = async (data) => {
@@ -39,6 +40,11 @@ const sendReferralEmail = async (data) => {
 
 // POST /referrals - Create a new referral
 app.post('/referrals', async (req, res) => {
+   res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+  res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+  res.setHeader('Access-Control-Allow-Credentials', true);
+  
   const { yourName, yourEmail, friendsName, friendsEmail, courseId } = req.body;
 
   // Validation
