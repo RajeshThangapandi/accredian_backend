@@ -6,8 +6,14 @@ const nodemailer = require('nodemailer');
 const app = express();
 const prisma = new PrismaClient();
 
+const cors = require('cors');
+app.use(cors({
+  origin: 'https://accredian-frontend-seven.vercel.app', // This should match the frontend origin
+  methods: ['GET', 'POST'],
+  allowedHeaders: ['Content-Type'],
+}));
+
 app.use(bodyParser.json());
-const allowedOrigin = 'https://accredian-frontend-seven.vercel.app';
 
 // Send Referral Email
 const sendReferralEmail = async (data) => {
@@ -38,13 +44,18 @@ const sendReferralEmail = async (data) => {
   }
 };
 
+app.get('/referrals', async (req, res) => {
+  try {
+    const referrals = await prisma.referral.findMany();
+    res.json(referrals);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'An error occurred while retrieving referrals' });
+  }
+});
+
 // POST /referrals - Create a new referral
 app.post('/referrals', async (req, res) => {
-   res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-  res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
-  res.setHeader('Access-Control-Allow-Credentials', true);
-  
   const { yourName, yourEmail, friendsName, friendsEmail, courseId } = req.body;
 
   // Validation
@@ -65,16 +76,6 @@ app.post('/referrals', async (req, res) => {
   } catch (error) {
     console.error('Error creating referral:', error);
     res.status(500).json({ error: 'Internal Server Error' });
-  }
-});
-
-app.get('/referrals', async (req, res) => {
-  try {
-    const referrals = await prisma.referral.findMany();
-    res.json(referrals);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'An error occurred while retrieving referrals' });
   }
 });
 
