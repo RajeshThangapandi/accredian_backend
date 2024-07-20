@@ -62,6 +62,16 @@ app.post('/referrals', async (req, res) => {
   }
 });
 
+app.get('/referrals', async (req, res) => {
+  try {
+    const referrals = await prisma.referral.findMany();
+    res.json(referrals);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'An error occurred while retrieving referrals' });
+  }
+});
+
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
